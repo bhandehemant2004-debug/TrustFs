@@ -1,6 +1,7 @@
 package com.example.TrustFs.Controller;
 
 import com.example.TrustFs.Services.Filesharer;
+import com.example.TrustFs.Utils.websocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,20 +15,23 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 @RestController
 public class Controller {
     @Autowired
     Filesharer filesharer;
+    public String path = "/home/hemant/Desktop/TrustFs/Storage/user1/";
+    public static HashMap<Integer,Integer> websockets = new HashMap<>();
     @GetMapping("/download/{filename}")
     public ResponseEntity<StreamingResponseBody> download(@PathVariable String filename) throws IOException, InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = new Filesharer().startServer(latch, filename);
         System.out.println("port is :"+port);
         if(port == -1){
-        
             return ResponseEntity.noContent().build();
         }
         latch.await();
@@ -99,6 +103,25 @@ public class Controller {
             System.out.println("Error : " + e);
             return ResponseEntity.internalServerError().body("Failed");
         }
+    }
+    @GetMapping("edit/{filename}")
+    public int editfile(@PathVariable String filename){
+        int hash = filename.hashCode();
+        if(websockets.containsKey(hash)){
+            return websockets.get(hash);
+        }
+        try{
+            ServerSocket server = new ServerSocket(0);
+            int port = server.getLocalPort();
+            websockets.put(hash,port);
+            new websocket(server,websockets,path+filename).start();
+            return port;
+        }
+        catch(IOException exp){
+            System.out.println("unable to give port for the websocekt");
+        }
+
+        return -1;
     }
 
 }

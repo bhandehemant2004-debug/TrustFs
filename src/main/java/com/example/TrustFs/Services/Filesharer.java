@@ -1,5 +1,6 @@
 package com.example.TrustFs.Services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -9,11 +10,13 @@ import java.net.SocketException;
 //import java.nio.file.Files;
 //import java.nio.file.Path;
 //import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 @Component
 public class Filesharer {
-    public String path = "/home/bodhicoder/Desktop/TrustFs/Storage/user1/";
+
+    public String path = "/home/hemant/Desktop/TrustFs/Storage/user1/";
     public int startServer(CountDownLatch countDownLatch,String filename) {
 
         try {
@@ -74,4 +77,6 @@ public class Filesharer {
         return -1;
 
     }
+
+
 }
